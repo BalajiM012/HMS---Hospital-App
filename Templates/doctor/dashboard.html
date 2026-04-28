@@ -1,10 +1,16 @@
-<h2>Appointments</h2>
+<h2>Doctor Dashboard</h2>
 
 {% for a in appointments %}
-<p>
-  {{ a.date }} - {{ a.time }} - {{ a.status }}
+<div style="border:1px solid #ccc; padding:10px; margin:10px;">
+    <p><b>Patient:</b> {{ a.patient_name }}</p>
+    <p><b>Email:</b> {{ a.patient_email }}</p>
+    <p><b>Date:</b> {{ a.date }}</p>
+    <p><b>Time:</b> {{ a.time }}</p>
+    <p><b>Status:</b> {{ a.status }}</p>
 
-  <a href="/doctor/approve/{{ a._id }}">Approve</a>
-  <a href="/doctor/reject/{{ a._id }}">Reject</a>
-</p>
+    {% if a.status == 'pending' %}
+        <a href="/doctor/approve/{{ a._id }}">Approve</a>
+        <a href="/doctor/reject/{{ a._id }}">Reject</a>
+    {% endif %}
+</div>
 {% endfor %}
