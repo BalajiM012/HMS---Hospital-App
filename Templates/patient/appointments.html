@@ -1,0 +1,9 @@
+<h2>My Appointments</h2>
+
+{% for a in appointments %}
+<p>
+  Date: {{ a.date }} |
+  Time: {{ a.time }} |
+  Status: {{ a.status }}
+</p>
+{% endfor %}
