@@ -1,0 +1,10 @@
+<h2>Appointments</h2>
+
+{% for a in appointments %}
+<p>
+  {{ a.date }} - {{ a.time }} - {{ a.status }}
+
+  <a href="/doctor/approve/{{ a._id }}">Approve</a>
+  <a href="/doctor/reject/{{ a._id }}">Reject</a>
+</p>
+{% endfor %}
