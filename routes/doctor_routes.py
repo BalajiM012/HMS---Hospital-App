@@ -1,36 +1,38 @@
-from flask import Blueprint, render_template, request, redirect, current_app
+from flask import Blueprint, render_template, session, current_app, redirect
 from utils.decorators import role_required
+from bson.objectid import ObjectId
 
 doctor_bp = Blueprint('doctor', __name__)
 
 @doctor_bp.route('/')
 @role_required('doctor')
 def dashboard():
-    appointments = list(current_app.db.appointments.find())
-    return render_template('doctor/dashboard.html', appointments=appointments)
 
+    doctor_id = session['user_id']
 
-@doctor_bp.route('/approve/<id>')
-@role_required('doctor')
-def approve(id):
-    from bson.objectid import ObjectId
+    # ✅ Get only this doctor's appointments
+    appointments = list(current_app.db.appointments.find({
+        "doctor_id": doctor_id
+    }))
 
-    current_app.db.appointments.update_one(
-        {"_id": ObjectId(id)},
-        {"$set": {"status": "approved"}}
+    enriched_appointments = []
+
+    # ✅ Add patient info
+    for a in appointments:
+        patient = current_app.db.users.find_one({
+            "_id": ObjectId(a['patient_id'])
+        })
+
+        enriched_appointments.append({
+            "_id": a['_id'],
+            "date": a['date'],
+            "time": a['time'],
+            "status": a['status'],
+            "patient_name": patient['name'] if patient else "Unknown",
+            "patient_email": patient['email'] if patient else "N/A"
+        })
+
+    return render_template(
+        'doctor/dashboard.html',
+        appointments=enriched_appointments
     )
-
-    return redirect('/doctor')
-
-
-@doctor_bp.route('/reject/<id>')
-@role_required('doctor')
-def reject(id):
-    from bson.objectid import ObjectId
-
-    current_app.db.appointments.update_one(
-        {"_id": ObjectId(id)},
-        {"$set": {"status": "rejected"}}
-    )
-
-    return redirect('/doctor')
