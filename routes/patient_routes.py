@@ -21,13 +21,14 @@ def book():
         "status": "pending"
     }
 
-    current_app.db.appointments.insert_one(appointment)
+    doctor = current_app.db.users.find_one({
+    "_id": ObjectId(request.form['doctor_id'])
+})
 
-    # send email
-    send_email(
-        to="doctor@email.com",  # replace with real doctor email
-        subject="New Appointment",
-        body=f"New appointment booked on {request.form['date']}"
-    )
+send_email(
+    to=doctor['email'],
+    subject="New Appointment",
+    body=f"New appointment on {request.form['date']}"
+)
 
     return redirect('/patient')
