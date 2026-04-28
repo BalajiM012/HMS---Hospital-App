@@ -120,5 +120,17 @@ def reject(id):
             )
         except Exception as e:
             print("Email error:", e)
+@doctor_bp.route('/availability', methods=['POST'])
+@role_required('doctor')
+def add_availability():
 
+    data = {
+        "doctor_id": session['user_id'],
+        "date": request.form['date'],
+        "slots": request.form.getlist('slots')
+    }
+
+    current_app.db.availability.insert_one(data)
+
+   
     return redirect('/doctor')
