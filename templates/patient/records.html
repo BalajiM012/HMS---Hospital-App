@@ -1,0 +1,19 @@
+<h2>Medical Records</h2>
+
+<table border="1">
+<tr>
+    <th>Date</th>
+    <th>Doctor</th>
+    <th>Diagnosis</th>
+    <th>Prescription</th>
+</tr>
+
+{% for r in data %}
+<tr>
+    <td>{{ r.date }}</td>
+    <td>{{ r.doctor_name }}</td>
+    <td>{{ r.diagnosis }}</td>
+    <td>{{ r.prescription }}</td>
+</tr>
+{% endfor %}
+</table>
