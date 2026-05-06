@@ -30,7 +30,10 @@ def create_app():
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
     return app
-
+@app.route('/test-db')
+def test_db():
+    cursor.execute("SELECT 1")
+    return "DB Connected"
 
 app = create_app()
 
