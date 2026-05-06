@@ -15,6 +15,15 @@ def dashboard():
     """, (session['user_id'],))
 
     data = cursor.fetchall()
+    cursor.execute("""
+    SELECT * FROM appointments
+    WHERE doctor_id=%s AND date=%s AND time=%s
+""", (doctor_id, date, time))
+
+existing = cursor.fetchone()
+
+if existing:
+    return "Slot already booked!"
     return render_template('doctor/dashboard.html', data=data)
 
 
