@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block auth_content %}
+<style>
+body{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.auth-wrap{width:100%;max-width:560px}
+.auth-brand{text-align:center;margin-bottom:28px}
+.auth-brand .logo{font-family:'Playfair Display',serif;font-size:28px;color:#fff;font-weight:700}
+.auth-brand p{color:#94a3b8;margin-top:4px;font-size:14px}
+.auth-card{background:#fff;border-radius:16px;padding:36px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.auth-card h2{font-size:20px;font-weight:600;margin-bottom:4px}
+.auth-card .sub{color:#6b7280;font-size:13px;margin-bottom:24px}
+.section-divider{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#9ca3af;margin:20px 0 14px;border-bottom:1px solid #f3f4f6;padding-bottom:8px}
+.auth-footer{text-align:center;margin-top:20px;font-size:14px;color:#6b7280}
+.auth-footer a{color:#1a56db;text-decoration:none;font-weight:500}
+</style>
+<div class="auth-wrap">
+  <div class="auth-brand">
+    <div class="logo">🏥 MediCare</div>
+    <p>Patient Registration</p>
+  </div>
+  <div class="auth-card">
+    <h2>Create Patient Account</h2>
+    <p class="sub">Register to book appointments and manage your health records</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="section-divider">Personal Information</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="name" class="form-control" required placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" name="phone" class="form-control" placeholder="+91 9999999999">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          <input type="date" name="dob" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          <select name="gender" class="form-control">
+            <option value="">Select</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Blood Group</label>
+          <select name="blood_group" class="form-control">
+            <option value="">Select</option>
+            {% for bg in ['A+','A-','B+','B-','AB+','AB-','O+','O-'] %}
+            <option value="{{ bg }}">{{ bg }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Emergency Contact</label>
+          <input type="tel" name="emergency_contact" class="form-control" placeholder="+91 8888888888">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Address</label>
+        <textarea name="address" class="form-control" rows="2" placeholder="Your address..."></textarea>
+      </div>
+
+      <div class="section-divider">Account Credentials</div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control" required placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" required placeholder="Min 6 characters" minlength="6">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px">Create Account</button>
+    </form>
+    <div class="auth-footer">
+      Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

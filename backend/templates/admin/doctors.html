@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Manage Doctors - MediCare{% endblock %}
+{% block page_title %}Manage Doctors{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+  <div class="page-header" style="margin:0">
+    <h1>Doctors</h1>
+    <p>{{ doctors|length }} registered doctors</p>
+  </div>
+  <a href="{{ url_for('admin.add_doctor') }}" class="btn btn-primary">+ Add Doctor</a>
+</div>
+<div class="card">
+  <div class="card-body" style="padding:0">
+    {% if doctors %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Specialty</th><th>Qualification</th><th>Experience</th><th>Fee</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for doc in doctors %}
+          <tr>
+            <td>
+              <div style="font-weight:500">Dr. {{ doc.name }}</div>
+              <div style="font-size:12px;color:#9ca3af">{{ doc.email }}</div>
+            </td>
+            <td>{{ doc.specialty }}</td>
+            <td>{{ doc.qualification or '—' }}</td>
+            <td>{{ doc.experience_years }} yrs</td>
+            <td>₹{{ doc.consultation_fee }}</td>
+            <td>
+              {% if doc.available %}
+                <span class="badge badge-approved">Available</span>
+              {% else %}
+                <span class="badge badge-rejected">Unavailable</span>
+              {% endif %}
+            </td>
+            <td>
+              <form action="{{ url_for('admin.delete_doctor', doc_id=doc.id) }}" method="POST" onsubmit="return confirm('Remove Dr. {{ doc.name }}?')">
+                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty" style="padding:60px"><p>No doctors added yet.</p></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Payments - MediCare{% endblock %}
+{% block page_title %}Payment Management{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Payments</h1>
+  <p>Track and manage all consultation payments.</p>
+</div>
+<div class="card">
+  <div class="card-body" style="padding:0">
+    {% if payments %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Patient</th><th>Doctor</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          {% for p in payments %}
+          <tr>
+            <td style="color:#9ca3af">{{ loop.index }}</td>
+            <td>{{ p.patient_name }}</td>
+            <td>Dr. {{ p.doctor_name }}</td>
+            <td><strong>₹{{ "%.2f"|format(p.amount) }}</strong></td>
+            <td><span class="badge badge-{{ p.status }}">{{ p.status }}</span></td>
+            <td style="font-size:13px;color:#6b7280">{{ p.payment_date.strftime('%d %b %Y') if p.payment_date else p.created_at.strftime('%d %b %Y') }}</td>
+            <td>
+              {% if p.status == 'unpaid' %}
+              <form action="{{ url_for('admin.mark_paid', pay_id=p.id) }}" method="POST">
+                <button type="submit" class="btn btn-success btn-sm">Mark Paid</button>
+              </form>
+              {% else %}
+              <span style="color:#9ca3af;font-size:13px">✓ Paid</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty" style="padding:60px"><p>No payments yet.</p></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

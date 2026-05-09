@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Find Doctors - MediCare{% endblock %}
+{% block page_title %}Find Doctors{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Available Doctors</h1>
+  <p>Browse our specialists and book an appointment.</p>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px">
+  {% for doc in doctors %}
+  <div class="card" style="padding:24px">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#eff4ff;display:flex;align-items:center;justify-content:center;font-size:22px">🩺</div>
+      <div>
+        <div style="font-weight:600;font-size:16px">Dr. {{ doc.name }}</div>
+        <div style="color:#1a56db;font-size:13px">{{ doc.specialty }}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;font-size:13px">
+      <div><span style="color:#6b7280">Qualification:</span><br><strong>{{ doc.qualification or 'N/A' }}</strong></div>
+      <div><span style="color:#6b7280">Experience:</span><br><strong>{{ doc.experience_years }} yrs</strong></div>
+      <div><span style="color:#6b7280">Phone:</span><br><strong>{{ doc.phone or 'N/A' }}</strong></div>
+      <div><span style="color:#6b7280">Fee:</span><br><strong>₹{{ doc.consultation_fee }}</strong></div>
+    </div>
+    <a href="{{ url_for('appointments.book') }}?doctor={{ doc.id }}" class="btn btn-primary btn-sm" style="width:100%;justify-content:center">Book Appointment</a>
+  </div>
+  {% else %}
+  <div class="empty" style="grid-column:1/-1">
+    <p>No doctors available at this time.</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

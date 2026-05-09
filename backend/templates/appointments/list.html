@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Appointments - MediCare{% endblock %}
+{% block page_title %}All Appointments{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>My Appointments</h1>
+  <p>Complete appointment history.</p>
+</div>
+<div class="card">
+  <div class="card-body" style="padding:0">
+    {% if appointments %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>{% if role == 'patient' %}Doctor{% else %}Patient{% endif %}</th>
+            {% if role == 'patient' %}<th>Specialty</th>{% endif %}
+            <th>Date</th>
+            <th>Time</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in appointments %}
+          <tr>
+            <td>
+              {% if role == 'patient' %}
+                <strong>Dr. {{ a.doctor_name }}</strong>
+              {% else %}
+                <strong>{{ a.patient_name }}</strong>
+              {% endif %}
+            </td>
+            {% if role == 'patient' %}<td>{{ a.specialty }}</td>{% endif %}
+            <td>{{ a.appointment_date.strftime('%d %b %Y') }}</td>
+            <td>{{ a.appointment_time }}</td>
+            <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.reason or '—' }}</td>
+            <td><span class="badge badge-{{ a.status }}">{{ a.status }}</span></td>
+            <td style="font-size:13px;color:#6b7280;max-width:140px">{{ a.notes or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty" style="padding:60px">
+      <p>No appointments found.</p>
+      {% if role == 'patient' %}
+      <a href="{{ url_for('appointments.book') }}" class="btn btn-primary" style="margin-top:12px">Book Now</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

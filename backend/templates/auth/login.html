@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block auth_content %}
+<style>
+body{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);display:flex;align-items:center;justify-content:center;min-height:100vh}
+.auth-wrap{width:100%;max-width:440px;padding:20px}
+.auth-brand{text-align:center;margin-bottom:32px}
+.auth-brand .logo{font-family:'Playfair Display',serif;font-size:32px;color:#fff;font-weight:700}
+.auth-brand p{color:#94a3b8;margin-top:6px;font-size:14px}
+.auth-card{background:#fff;border-radius:16px;padding:36px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.auth-card h2{font-size:22px;font-weight:600;margin-bottom:6px}
+.auth-card .sub{color:#6b7280;font-size:14px;margin-bottom:28px}
+.role-tabs{display:flex;gap:8px;margin-bottom:24px}
+.role-tab{flex:1;padding:9px;border:2px solid #e5e7eb;border-radius:8px;background:#fff;font-size:13px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s;color:#374151}
+.role-tab.active,.role-tab:hover{border-color:#1a56db;background:#eff4ff;color:#1a56db}
+.auth-footer{text-align:center;margin-top:20px;font-size:14px;color:#6b7280}
+.auth-footer a{color:#1a56db;text-decoration:none;font-weight:500}
+.alert{padding:12px;border-radius:8px;margin-bottom:18px;font-size:13px}
+.alert-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+</style>
+<div class="auth-wrap">
+  <div class="auth-brand">
+    <div class="logo">🏥 MediCare</div>
+    <p>Hospital Management System</p>
+  </div>
+  <div class="auth-card">
+    <h2>Welcome back</h2>
+    <p class="sub">Sign in to your account</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="role-tabs">
+      <div class="role-tab active" onclick="setRole('patient',this)">👤 Patient</div>
+      <div class="role-tab" onclick="setRole('doctor',this)">🩺 Doctor</div>
+      <div class="role-tab" onclick="setRole('admin',this)">🔧 Admin</div>
+    </div>
+
+    <form method="POST">
+      <input type="hidden" name="role" id="role-input" value="patient">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control" required placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-control" required placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px">Sign In</button>
+    </form>
+    <div class="auth-footer">
+      New patient? <a href="{{ url_for('auth.register') }}">Create account</a>
+    </div>
+  </div>
+</div>
+<script>
+function setRole(role, el) {
+  document.getElementById('role-input').value = role;
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+{% endblock %}
