@@ -11,6 +11,8 @@ client = MongoClient(MONGO_URI)
 db = client["Hospital_Management_HMS"]
 
 users = db["users"]
+patients = db["patients"]
+doctors = db["doctors"]
 appointments = db["appointments"]
 payments = db["payments"]
 medical_records = db["medical_records"]
