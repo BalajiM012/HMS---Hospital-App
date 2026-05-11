@@ -1,5 +1,10 @@
+# 🏥 MediCare — Hospital Management System
 
-https://hms-hospital-app.onrender.com
+A full-stack hospital management system built using Flask + MySQL with role-based access for Admins, Doctors, and Patients.
+
+🚀 Live Demo: https://hms-hospital-app.onrender.com
+
+
 # 🏥 MediCare — Hospital Management System
 
 A full-stack hospital management web app built with **Flask + MySQL**, deployable on **Render (backend) + Railway (MySQL)**.
