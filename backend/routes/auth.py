@@ -24,50 +24,49 @@ def login():
 
         if user:
 
-    stored_hash = user.get('password_hash')
+            stored_hash = user.get('password_hash')
 
-    if stored_hash and check_password_hash(stored_hash, password):
-            session['user_id'] = str(user['_id'])
-            session['name'] = user['name']
-            session['role'] = user['role']
-            session['email'] = user['email']
+            if stored_hash and check_password_hash(stored_hash, password):
 
-            # Patient Session
-            if role == 'patient':
+                session['user_id'] = str(user['_id'])
+                session['name'] = user['name']
+                session['role'] = user['role']
+                session['email'] = user['email']
 
-                patient = patients.find_one({
-                    "user_id": str(user['_id'])
-                })
+                # Patient Session
+                if role == 'patient':
 
-                if patient:
-                    session['patient_id'] = str(patient['_id'])
+                    patient = patients.find_one({
+                        "user_id": str(user['_id'])
+                    })
 
-            # Doctor Session
-            elif role == 'doctor':
+                    if patient:
+                        session['patient_id'] = str(patient['_id'])
 
-                doctor = doctors.find_one({
-                    "user_id": str(user['_id'])
-                })
+                # Doctor Session
+                elif role == 'doctor':
 
-                if doctor:
-                    session['doctor_id'] = str(doctor['_id'])
+                    doctor = doctors.find_one({
+                        "user_id": str(user['_id'])
+                    })
 
-            flash(f"Welcome back, {user['name']}!", 'success')
+                    if doctor:
+                        session['doctor_id'] = str(doctor['_id'])
 
-            if role == 'admin':
-                return redirect(url_for('admin.dashboard'))
+                flash(f"Welcome back, {user['name']}!", 'success')
 
-            elif role == 'doctor':
-                return redirect(url_for('doctor.dashboard'))
+                if role == 'admin':
+                    return redirect(url_for('admin.dashboard'))
 
-            elif role == 'patient':
-                return redirect(url_for('patient.dashboard'))
+                elif role == 'doctor':
+                    return redirect(url_for('doctor.dashboard'))
 
-        else:
-            flash('Invalid credentials or role.', 'error')
+                elif role == 'patient':
+                    return redirect(url_for('patient.dashboard'))
+
+        flash('Invalid credentials or role.', 'error')
 
     return render_template('auth/login.html')
-
 
 # ================= PATIENT REGISTER =================
 @auth_bp.route('/register', methods=['GET', 'POST'])
