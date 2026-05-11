@@ -315,17 +315,17 @@ body{
 
     {% elif session.role == 'doctor' %}
 
-    <span class="sidebar-section">Doctor Panel</span>
+<span class="sidebar-section">Doctor Panel</span>
 
-    <a href="{{ url_for('doctor.dashboard') }}"
-       class="{{ 'active' if request.endpoint == 'doctor.dashboard' else '' }}">
-      Dashboard
-    </a>
+<a href="{{ url_for('doctor.dashboard') }}"
+   class="{{ 'active' if request.endpoint == 'doctor.dashboard' else '' }}">
+  Dashboard
+</a>
 
-    <a href="{{ url_for('appointments.my_appointments') }}"
-       class="{{ 'active' if request.endpoint and 'appointments' in request.endpoint else '' }}">
-      Appointments
-    </a>
+<a href="{{ url_for('appointments.my_appointments') }}"
+   class="{{ 'active' if request.endpoint and 'appointment' in request.endpoint else '' }}">
+  Appointments
+</a>
 
     {% elif session.role == 'patient' %}
 
