@@ -78,7 +78,6 @@ def doctors_page():
             doc['name'] = user.get('name')
             doc['email'] = user.get('email')
             doc['phone'] = user.get('phone')
-            doc['joined'] = user.get('created_at')
 
     return render_template(
         'admin/doctors.html',
@@ -181,12 +180,12 @@ def patients_page():
             patient['name'] = user.get('name')
             patient['email'] = user.get('email')
             patient['phone'] = user.get('phone')
-            patient['joined'] = user.get('created_at')
 
     return render_template(
         'admin/patients.html',
         patients=pats
     )
+
 
 
 @admin_bp.route('/payments')
