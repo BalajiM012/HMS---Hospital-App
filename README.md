@@ -4,6 +4,15 @@ A full-stack hospital management system built using Flask + MySQL with role-base
 
 🚀 Live Demo: https://hms-hospital-app.onrender.com
 
+## Demo Credentials
+
+### Admin
+Email: admin@hospital.com
+Password: admin123
+
+### Patient
+Email: patient@test.com
+Password: patient123
 
 # 🏥 MediCare — Hospital Management System
 
