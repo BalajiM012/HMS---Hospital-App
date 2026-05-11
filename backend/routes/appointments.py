@@ -1,82 +1,171 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
-from db import query
 from functools import wraps
+from bson.objectid import ObjectId
+from datetime import datetime
+
+from mongo import (
+    users,
+    doctors,
+    patients,
+    appointments
+)
 
 appt_bp = Blueprint('appointments', __name__)
+
 
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+
         if 'user_id' not in session:
             return redirect(url_for('auth.login'))
+
         return f(*args, **kwargs)
+
     return decorated
+
 
 @appt_bp.route('/book', methods=['GET', 'POST'])
 @login_required
 def book():
+
     if session.get('role') != 'patient':
         flash('Only patients can book appointments.', 'error')
         return redirect(url_for('auth.login'))
 
-    doctors = query('''
-        SELECT d.id, u.name, d.specialty, d.consultation_fee, d.experience_years
-        FROM doctors d JOIN users u ON d.user_id = u.id
-        WHERE d.available = 1
-    ''')
+    # Get Available Doctors
+    doctor_list = list(doctors.find({
+        "available": True
+    }))
+
+    # Attach User Info
+    for doctor in doctor_list:
+
+        user = users.find_one({
+            "_id": ObjectId(doctor['user_id'])
+        })
+
+        if user:
+            doctor['name'] = user.get('name')
 
     if request.method == 'POST':
-        pid     = session.get('patient_id')
-        did     = request.form.get('doctor_id')
-        date    = request.form.get('appointment_date')
-        time    = request.form.get('appointment_time')
-        reason  = request.form.get('reason', '')
 
-        # Check for conflicts
-        conflict = query('''
-            SELECT id FROM appointments
-            WHERE doctor_id=%s AND appointment_date=%s AND appointment_time=%s
-            AND status IN ('pending','approved')
-        ''', (did, date, time), one=True)
+        patient_id = session.get('patient_id')
+
+        doctor_id = request.form.get('doctor_id')
+        appointment_date = request.form.get('appointment_date')
+        appointment_time = request.form.get('appointment_time')
+
+        reason = request.form.get('reason', '')
+
+        # Check Conflict
+        conflict = appointments.find_one({
+            "doctor_id": doctor_id,
+            "appointment_date": appointment_date,
+            "appointment_time": appointment_time,
+            "status": {
+                "$in": ["pending", "approved"]
+            }
+        })
 
         if conflict:
-            flash('That time slot is already taken. Please choose another.', 'error')
-            return render_template('appointments/book.html', doctors=doctors)
+            flash(
+                'That time slot is already taken. Please choose another.',
+                'error'
+            )
 
-        query('''
-            INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time, reason)
-            VALUES (%s,%s,%s,%s,%s)
-        ''', (pid, did, date, time, reason), commit=True)
-        flash('Appointment booked successfully! Waiting for doctor approval.', 'success')
+            return render_template(
+                'appointments/book.html',
+                doctors=doctor_list
+            )
+
+        # Insert Appointment
+        appointments.insert_one({
+            "patient_id": patient_id,
+            "doctor_id": doctor_id,
+            "appointment_date": appointment_date,
+            "appointment_time": appointment_time,
+            "reason": reason,
+            "status": "pending",
+            "created_at": datetime.utcnow()
+        })
+
+        flash(
+            'Appointment booked successfully! Waiting for doctor approval.',
+            'success'
+        )
+
         return redirect(url_for('patient.dashboard'))
 
-    return render_template('appointments/book.html', doctors=doctors)
+    return render_template(
+        'appointments/book.html',
+        doctors=doctor_list
+    )
+
 
 @appt_bp.route('/my')
 @login_required
 def my_appointments():
+
     role = session.get('role')
+
+    # Patient Appointments
     if role == 'patient':
-        pid = session.get('patient_id')
-        appts = query('''
-            SELECT a.*, u.name as doctor_name, d.specialty
-            FROM appointments a
-            JOIN doctors d ON a.doctor_id = d.id
-            JOIN users u ON d.user_id = u.id
-            WHERE a.patient_id = %s
-            ORDER BY a.appointment_date DESC
-        ''', (pid,))
+
+        patient_id = session.get('patient_id')
+
+        appts = list(appointments.find({
+            "patient_id": patient_id
+        }).sort("appointment_date", -1))
+
+        # Attach Doctor Info
+        for appt in appts:
+
+            doctor = doctors.find_one({
+                "_id": ObjectId(appt['doctor_id'])
+            })
+
+            if doctor:
+
+                user = users.find_one({
+                    "_id": ObjectId(doctor['user_id'])
+                })
+
+                if user:
+                    appt['doctor_name'] = user.get('name')
+
+                appt['specialty'] = doctor.get('specialty')
+
+    # Doctor Appointments
     elif role == 'doctor':
-        did = session.get('doctor_id')
-        appts = query('''
-            SELECT a.*, u.name as patient_name
-            FROM appointments a
-            JOIN patients p ON a.patient_id = p.id
-            JOIN users u ON p.user_id = u.id
-            WHERE a.doctor_id = %s
-            ORDER BY a.appointment_date DESC
-        ''', (did,))
+
+        doctor_id = session.get('doctor_id')
+
+        appts = list(appointments.find({
+            "doctor_id": doctor_id
+        }).sort("appointment_date", -1))
+
+        # Attach Patient Info
+        for appt in appts:
+
+            patient = patients.find_one({
+                "_id": ObjectId(appt['patient_id'])
+            })
+
+            if patient:
+
+                user = users.find_one({
+                    "_id": ObjectId(patient['user_id'])
+                })
+
+                if user:
+                    appt['patient_name'] = user.get('name')
+
     else:
         return redirect(url_for('admin.dashboard'))
 
-    return render_template('appointments/list.html', appointments=appts, role=role)
+    return render_template(
+        'appointments/list.html',
+        appointments=appts,
+        role=role
+    )
