@@ -1,100 +1,259 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
-from db import query
 from functools import wraps
+from bson.objectid import ObjectId
+from datetime import datetime
+
+from mongo import (
+    users,
+    doctors,
+    patients,
+    appointments,
+    payments,
+    medical_records
+)
 
 doctor_bp = Blueprint('doctor', __name__)
+
 
 def doctor_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+
         if session.get('role') != 'doctor':
             flash('Access denied.', 'error')
             return redirect(url_for('auth.login'))
+
         return f(*args, **kwargs)
+
     return decorated
+
 
 @doctor_bp.route('/dashboard')
 @doctor_required
 def dashboard():
-    did = session.get('doctor_id')
-    appointments = query('''
-        SELECT a.*, u.name as patient_name, p.blood_group
-        FROM appointments a
-        JOIN patients p ON a.patient_id = p.id
-        JOIN users u ON p.user_id = u.id
-        WHERE a.doctor_id = %s
-        ORDER BY a.appointment_date DESC LIMIT 10
-    ''', (did,))
-    stats = {
-        'total':    query('SELECT COUNT(*) as c FROM appointments WHERE doctor_id=%s', (did,), one=True)['c'],
-        'pending':  query("SELECT COUNT(*) as c FROM appointments WHERE doctor_id=%s AND status='pending'", (did,), one=True)['c'],
-        'today':    query("SELECT COUNT(*) as c FROM appointments WHERE doctor_id=%s AND appointment_date=CURDATE()", (did,), one=True)['c'],
-    }
-    return render_template('doctor/dashboard.html', appointments=appointments, stats=stats)
 
-@doctor_bp.route('/appointment/<int:appt_id>/action', methods=['POST'])
+    doctor_id = session.get('doctor_id')
+
+    # Recent Appointments
+    appts = list(
+        appointments.find({
+            "doctor_id": doctor_id
+        }).sort("appointment_date", -1).limit(10)
+    )
+
+    # Attach Patient Info
+    for appt in appts:
+
+        patient = patients.find_one({
+            "_id": ObjectId(appt['patient_id'])
+        })
+
+        if patient:
+
+            user = users.find_one({
+                "_id": ObjectId(patient['user_id'])
+            })
+
+            if user:
+                appt['patient_name'] = user.get('name')
+
+            appt['blood_group'] = patient.get('blood_group')
+
+    # Stats
+    stats = {
+        'total': appointments.count_documents({
+            "doctor_id": doctor_id
+        }),
+
+        'pending': appointments.count_documents({
+            "doctor_id": doctor_id,
+            "status": "pending"
+        }),
+
+        'today': appointments.count_documents({
+            "doctor_id": doctor_id,
+            "appointment_date": datetime.utcnow().strftime('%Y-%m-%d')
+        })
+    }
+
+    return render_template(
+        'doctor/dashboard.html',
+        appointments=appts,
+        stats=stats
+    )
+
+
+@doctor_bp.route('/appointment/<appt_id>/action', methods=['POST'])
 @doctor_required
 def appointment_action(appt_id):
-    action = request.form.get('action')
-    notes  = request.form.get('notes', '')
-    did = session.get('doctor_id')
 
-    appt = query('SELECT * FROM appointments WHERE id=%s AND doctor_id=%s', (appt_id, did), one=True)
+    action = request.form.get('action')
+    notes = request.form.get('notes', '')
+
+    doctor_id = session.get('doctor_id')
+
+    appt = appointments.find_one({
+        "_id": ObjectId(appt_id),
+        "doctor_id": doctor_id
+    })
+
     if not appt:
         flash('Appointment not found.', 'error')
         return redirect(url_for('doctor.dashboard'))
 
-    if action in ('approved', 'rejected', 'completed'):
-        query('UPDATE appointments SET status=%s, notes=%s WHERE id=%s', (action, notes, appt_id), commit=True)
+    if action in ['approved', 'rejected', 'completed']:
+
+        appointments.update_one(
+            {"_id": ObjectId(appt_id)},
+            {
+                "$set": {
+                    "status": action,
+                    "notes": notes
+                }
+            }
+        )
+
+        # Auto Create Payment
         if action == 'approved':
-            doc = query('SELECT consultation_fee FROM doctors WHERE id=%s', (did,), one=True)
-            existing = query('SELECT id FROM payments WHERE appointment_id=%s', (appt_id,), one=True)
-            if not existing:
-                query('INSERT INTO payments (appointment_id, patient_id, amount) VALUES (%s,%s,%s)',
-                      (appt_id, appt['patient_id'], doc['consultation_fee']), commit=True)
+
+            doctor = doctors.find_one({
+                "_id": ObjectId(doctor_id)
+            })
+
+            existing_payment = payments.find_one({
+                "appointment_id": appt_id
+            })
+
+            if not existing_payment:
+
+                payments.insert_one({
+                    "appointment_id": appt_id,
+                    "patient_id": appt['patient_id'],
+                    "amount": doctor.get('consultation_fee', 0),
+                    "status": "pending",
+                    "created_at": datetime.utcnow()
+                })
+
         flash(f'Appointment {action}.', 'success')
+
     return redirect(url_for('doctor.dashboard'))
 
-@doctor_bp.route('/appointment/<int:appt_id>/record', methods=['GET', 'POST'])
+
+@doctor_bp.route('/appointment/<appt_id>/record', methods=['GET', 'POST'])
 @doctor_required
 def add_record(appt_id):
-    did = session.get('doctor_id')
-    appt = query('''
-        SELECT a.*, u.name as patient_name
-        FROM appointments a
-        JOIN patients p ON a.patient_id = p.id
-        JOIN users u ON p.user_id = u.id
-        WHERE a.id=%s AND a.doctor_id=%s
-    ''', (appt_id, did), one=True)
+
+    doctor_id = session.get('doctor_id')
+
+    appt = appointments.find_one({
+        "_id": ObjectId(appt_id),
+        "doctor_id": doctor_id
+    })
 
     if not appt:
-        flash('Not found.', 'error')
+        flash('Appointment not found.', 'error')
         return redirect(url_for('doctor.dashboard'))
+
+    # Patient Info
+    patient = patients.find_one({
+        "_id": ObjectId(appt['patient_id'])
+    })
+
+    patient_name = ""
+
+    if patient:
+
+        user = users.find_one({
+            "_id": ObjectId(patient['user_id'])
+        })
+
+        if user:
+            patient_name = user.get('name')
+
+    appt['patient_name'] = patient_name
 
     if request.method == 'POST':
-        diagnosis    = request.form.get('diagnosis', '')
+
+        diagnosis = request.form.get('diagnosis', '')
         prescription = request.form.get('prescription', '')
-        notes        = request.form.get('notes', '')
-        existing = query('SELECT id FROM medical_records WHERE appointment_id=%s', (appt_id,), one=True)
+        notes = request.form.get('notes', '')
+
+        existing = medical_records.find_one({
+            "appointment_id": appt_id
+        })
+
         if existing:
-            query('UPDATE medical_records SET diagnosis=%s, prescription=%s, notes=%s WHERE appointment_id=%s',
-                  (diagnosis, prescription, notes, appt_id), commit=True)
+
+            medical_records.update_one(
+                {"appointment_id": appt_id},
+                {
+                    "$set": {
+                        "diagnosis": diagnosis,
+                        "prescription": prescription,
+                        "notes": notes
+                    }
+                }
+            )
+
         else:
-            query('INSERT INTO medical_records (appointment_id, patient_id, doctor_id, diagnosis, prescription, notes) VALUES (%s,%s,%s,%s,%s,%s)',
-                  (appt_id, appt['patient_id'], did, diagnosis, prescription, notes), commit=True)
-        query("UPDATE appointments SET status='completed' WHERE id=%s", (appt_id,), commit=True)
+
+            medical_records.insert_one({
+                "appointment_id": appt_id,
+                "patient_id": appt['patient_id'],
+                "doctor_id": doctor_id,
+                "diagnosis": diagnosis,
+                "prescription": prescription,
+                "notes": notes,
+                "created_at": datetime.utcnow()
+            })
+
+        appointments.update_one(
+            {"_id": ObjectId(appt_id)},
+            {
+                "$set": {
+                    "status": "completed"
+                }
+            }
+        )
+
         flash('Medical record saved.', 'success')
+
         return redirect(url_for('doctor.dashboard'))
 
-    existing_record = query('SELECT * FROM medical_records WHERE appointment_id=%s', (appt_id,), one=True)
-    return render_template('doctor/add_record.html', appointment=appt, record=existing_record)
+    existing_record = medical_records.find_one({
+        "appointment_id": appt_id
+    })
+
+    return render_template(
+        'doctor/add_record.html',
+        appointment=appt,
+        record=existing_record
+    )
+
 
 @doctor_bp.route('/availability', methods=['POST'])
 @doctor_required
 def toggle_availability():
-    did = session.get('doctor_id')
-    current = query('SELECT available FROM doctors WHERE id=%s', (did,), one=True)
-    new_val = 0 if current['available'] else 1
-    query('UPDATE doctors SET available=%s WHERE id=%s', (new_val, did), commit=True)
+
+    doctor_id = session.get('doctor_id')
+
+    doctor = doctors.find_one({
+        "_id": ObjectId(doctor_id)
+    })
+
+    if doctor:
+
+        new_value = not doctor.get('available', True)
+
+        doctors.update_one(
+            {"_id": ObjectId(doctor_id)},
+            {
+                "$set": {
+                    "available": new_value
+                }
+            }
+        )
+
     flash('Availability updated.', 'success')
+
     return redirect(url_for('doctor.dashboard'))
