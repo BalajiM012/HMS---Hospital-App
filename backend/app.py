@@ -22,7 +22,7 @@ def create_app():
         static_folder='../frontend'
     )
 
-    # Secret key
+    # Secret Key
     app.secret_key = os.environ.get(
         'JWT_SECRET',
         'hospital-secret-2024-change-this'
@@ -33,14 +33,14 @@ def create_app():
     # MongoDB URI
     app.config['MONGODB_URI'] = os.environ.get('MONGODB_URI')
 
-    # Test MongoDB connection
+    # Test MongoDB Connection
     try:
         client.admin.command('ping')
         print("✅ MongoDB Connected Successfully")
     except Exception as e:
         print("❌ MongoDB Connection Failed:", e)
 
-    # Register blueprints
+    # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(patient_bp, url_prefix='/patient')
     app.register_blueprint(doctor_bp, url_prefix='/doctor')
@@ -56,10 +56,10 @@ def create_app():
             if role == 'admin':
                 return redirect(url_for('admin.dashboard'))
 
-            if role == 'doctor':
+            elif role == 'doctor':
                 return redirect(url_for('doctor.dashboard'))
 
-            if role == 'patient':
+            elif role == 'patient':
                 return redirect(url_for('patient.dashboard'))
 
         return redirect(url_for('auth.login'))
