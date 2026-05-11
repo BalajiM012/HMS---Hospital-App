@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Register - MediCare{% endblock %}
+
+{% block auth_content %}
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px;background:#f8fafc">
+  <div class="card" style="width:100%;max-width:450px">
+    
+    <div class="card-header">
+      <div>
+        <h2 class="card-title">Admin Registration</h2>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px">
+          Create a hospital administrator account
+        </p>
+      </div>
+    </div>
+
+    <div class="card-body">
+
+      <form method="POST">
+
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="name" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" name="email" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" name="password" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%">
+          Register Admin
+        </button>
+
+      </form>
+
+      <div style="margin-top:18px;text-align:center;font-size:14px">
+        Already have an account?
+        <a href="{{ url_for('auth.login') }}">Login</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
