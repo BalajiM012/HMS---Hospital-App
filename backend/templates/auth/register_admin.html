@@ -3,16 +3,12 @@
 {% block title %}Admin Register - MediCare{% endblock %}
 
 {% block auth_content %}
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px;background:#f8fafc">
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8f9fc;padding:40px">
+
   <div class="card" style="width:100%;max-width:450px">
     
     <div class="card-header">
-      <div>
-        <h2 class="card-title">Admin Registration</h2>
-        <p style="font-size:13px;color:var(--muted);margin-top:4px">
-          Create a hospital administrator account
-        </p>
-      </div>
+      <div class="card-title">Admin Registration</div>
     </div>
 
     <div class="card-body">
@@ -40,9 +36,10 @@
 
       </form>
 
-      <div style="margin-top:18px;text-align:center;font-size:14px">
-        Already have an account?
-        <a href="{{ url_for('auth.login') }}">Login</a>
+      <div style="margin-top:18px;text-align:center">
+        <a href="{{ url_for('auth.login') }}">
+          Back to Login
+        </a>
       </div>
 
     </div>
