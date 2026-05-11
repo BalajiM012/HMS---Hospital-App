@@ -3,16 +3,12 @@
 {% block title %}Doctor Register - MediCare{% endblock %}
 
 {% block auth_content %}
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px;background:#f8fafc">
-  <div class="card" style="width:100%;max-width:520px">
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8f9fc;padding:40px">
+
+  <div class="card" style="width:100%;max-width:500px">
 
     <div class="card-header">
-      <div>
-        <h2 class="card-title">Doctor Registration</h2>
-        <p style="font-size:13px;color:var(--muted);margin-top:4px">
-          Create a doctor account
-        </p>
-      </div>
+      <div class="card-title">Doctor Registration</div>
     </div>
 
     <div class="card-body">
@@ -36,7 +32,7 @@
 
         <div class="form-group">
           <label class="form-label">Specialty</label>
-          <input type="text" name="specialty" class="form-control" placeholder="Cardiology" required>
+          <input type="text" name="specialty" class="form-control" required>
         </div>
 
         <div class="form-group">
@@ -50,9 +46,10 @@
 
       </form>
 
-      <div style="margin-top:18px;text-align:center;font-size:14px">
-        Already have an account?
-        <a href="{{ url_for('auth.login') }}">Login</a>
+      <div style="margin-top:18px;text-align:center">
+        <a href="{{ url_for('auth.login') }}">
+          Back to Login
+        </a>
       </div>
 
     </div>
