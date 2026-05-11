@@ -4,6 +4,13 @@ import os
 
 load_dotenv()
 
-client = MongoClient(os.getenv("MONGO_URI"))
+MONGO_URI = os.getenv("MONGODB_URI")
 
-db = client["hospital_db"]
+client = MongoClient(MONGO_URI)
+
+db = client["Hospital_Management_HMS"]
+
+users = db["users"]
+appointments = db["appointments"]
+payments = db["payments"]
+medical_records = db["medical_records"]
