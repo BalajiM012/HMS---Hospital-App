@@ -1,75 +1,195 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash
-from db import query
 from functools import wraps
+from bson.objectid import ObjectId
+
+from mongo import (
+    users,
+    doctors,
+    appointments,
+    medical_records,
+    payments
+)
 
 patient_bp = Blueprint('patient', __name__)
+
 
 def patient_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+
         if session.get('role') != 'patient':
             flash('Access denied.', 'error')
             return redirect(url_for('auth.login'))
+
         return f(*args, **kwargs)
+
     return decorated
+
 
 @patient_bp.route('/dashboard')
 @patient_required
 def dashboard():
-    pid = session.get('patient_id')
-    appointments = query('''
-        SELECT a.*, u.name as doctor_name, d.specialty
-        FROM appointments a
-        JOIN doctors d ON a.doctor_id = d.id
-        JOIN users u ON d.user_id = u.id
-        WHERE a.patient_id = %s
-        ORDER BY a.appointment_date DESC LIMIT 5
-    ''', (pid,))
+
+    patient_id = session.get('patient_id')
+
+    # Recent Appointments
+    appts = list(
+        appointments.find({
+            "patient_id": patient_id
+        }).sort("appointment_date", -1).limit(5)
+    )
+
+    # Attach Doctor Info
+    for appt in appts:
+
+        doctor = doctors.find_one({
+            "_id": ObjectId(appt['doctor_id'])
+        })
+
+        if doctor:
+
+            user = users.find_one({
+                "_id": ObjectId(doctor['user_id'])
+            })
+
+            if user:
+                appt['doctor_name'] = user.get('name')
+
+            appt['specialty'] = doctor.get('specialty')
+
+    # Stats
     stats = {
-        'total': query('SELECT COUNT(*) as c FROM appointments WHERE patient_id=%s', (pid,), one=True)['c'],
-        'pending': query("SELECT COUNT(*) as c FROM appointments WHERE patient_id=%s AND status='pending'", (pid,), one=True)['c'],
-        'approved': query("SELECT COUNT(*) as c FROM appointments WHERE patient_id=%s AND status='approved'", (pid,), one=True)['c'],
+        'total': appointments.count_documents({
+            "patient_id": patient_id
+        }),
+
+        'pending': appointments.count_documents({
+            "patient_id": patient_id,
+            "status": "pending"
+        }),
+
+        'approved': appointments.count_documents({
+            "patient_id": patient_id,
+            "status": "approved"
+        })
     }
-    return render_template('patient/dashboard.html', appointments=appointments, stats=stats)
+
+    return render_template(
+        'patient/dashboard.html',
+        appointments=appts,
+        stats=stats
+    )
+
 
 @patient_bp.route('/doctors')
 @patient_required
-def doctors():
-    docs = query('''
-        SELECT d.id, u.name, u.phone, d.specialty, d.qualification, 
-               d.experience_years, d.available, d.consultation_fee
-        FROM doctors d JOIN users u ON d.user_id = u.id
-        WHERE d.available = 1
-    ''')
-    return render_template('patient/doctors.html', doctors=docs)
+def doctors_page():
+
+    docs = list(doctors.find({
+        "available": True
+    }))
+
+    # Attach User Info
+    for doc in docs:
+
+        user = users.find_one({
+            "_id": ObjectId(doc['user_id'])
+        })
+
+        if user:
+            doc['name'] = user.get('name')
+            doc['phone'] = user.get('phone')
+
+    return render_template(
+        'patient/doctors.html',
+        doctors=docs
+    )
+
 
 @patient_bp.route('/medical-records')
 @patient_required
-def medical_records():
-    pid = session.get('patient_id')
-    records = query('''
-        SELECT mr.*, u.name as doctor_name, d.specialty,
-               a.appointment_date
-        FROM medical_records mr
-        JOIN doctors d ON mr.doctor_id = d.id
-        JOIN users u ON d.user_id = u.id
-        JOIN appointments a ON mr.appointment_id = a.id
-        WHERE mr.patient_id = %s
-        ORDER BY mr.created_at DESC
-    ''', (pid,))
-    return render_template('patient/medical_records.html', records=records)
+def medical_records_page():
+
+    patient_id = session.get('patient_id')
+
+    records = list(
+        medical_records.find({
+            "patient_id": patient_id
+        }).sort("created_at", -1)
+    )
+
+    # Attach Doctor + Appointment Info
+    for record in records:
+
+        doctor = doctors.find_one({
+            "_id": ObjectId(record['doctor_id'])
+        })
+
+        if doctor:
+
+            user = users.find_one({
+                "_id": ObjectId(doctor['user_id'])
+            })
+
+            if user:
+                record['doctor_name'] = user.get('name')
+
+            record['specialty'] = doctor.get('specialty')
+
+        appointment = appointments.find_one({
+            "_id": ObjectId(record['appointment_id'])
+        })
+
+        if appointment:
+            record['appointment_date'] = appointment.get(
+                'appointment_date'
+            )
+
+    return render_template(
+        'patient/medical_records.html',
+        records=records
+    )
+
 
 @patient_bp.route('/payments')
 @patient_required
-def payments():
-    pid = session.get('patient_id')
-    pays = query('''
-        SELECT p.*, u.name as doctor_name, a.appointment_date
-        FROM payments p
-        JOIN appointments a ON p.appointment_id = a.id
-        JOIN doctors d ON a.doctor_id = d.id
-        JOIN users u ON d.user_id = u.id
-        WHERE p.patient_id = %s
-        ORDER BY p.created_at DESC
-    ''', (pid,))
-    return render_template('patient/payments.html', payments=pays)
+def payments_page():
+
+    patient_id = session.get('patient_id')
+
+    pays = list(
+        payments.find({
+            "patient_id": patient_id
+        }).sort("created_at", -1)
+    )
+
+    # Attach Doctor + Appointment Info
+    for pay in pays:
+
+        appointment = appointments.find_one({
+            "_id": ObjectId(pay['appointment_id'])
+        })
+
+        if appointment:
+
+            pay['appointment_date'] = appointment.get(
+                'appointment_date'
+            )
+
+            doctor = doctors.find_one({
+                "_id": ObjectId(appointment['doctor_id'])
+            })
+
+            if doctor:
+
+                user = users.find_one({
+                    "_id": ObjectId(doctor['user_id'])
+                })
+
+                if user:
+                    pay['doctor_name'] = user.get('name')
+
+    return render_template(
+        'patient/payments.html',
+        payments=pays
+    )
