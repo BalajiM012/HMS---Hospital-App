@@ -1,3 +1,5 @@
+
+https://hms-hospital-app.onrender.com
 # 🏥 MediCare — Hospital Management System
 
 A full-stack hospital management web app built with **Flask + MySQL**, deployable on **Render (backend) + Railway (MySQL)**.
