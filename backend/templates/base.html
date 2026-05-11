@@ -4,239 +4,403 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}MediCare Hospital{% endblock %}</title>
+
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
 <style>
-:root {
-  --bg: #f8f9fc;
-  --surface: #ffffff;
-  --border: #e8edf5;
-  --primary: #1a56db;
-  --primary-soft: #eff4ff;
-  --accent: #0ea5e9;
-  --success: #059669;
-  --success-soft: #ecfdf5;
-  --warning: #d97706;
-  --warning-soft: #fffbeb;
-  --danger: #dc2626;
-  --danger-soft: #fef2f2;
-  --text: #111827;
-  --muted: #6b7280;
-  --nav-bg: #0f172a;
-  --nav-text: #94a3b8;
-  --nav-active: #ffffff;
-  --radius: 12px;
-  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
+:root{
+  --bg:#f8f9fc;
+  --surface:#ffffff;
+  --border:#e8edf5;
+  --primary:#1a56db;
+  --primary-soft:#eff4ff;
+  --success:#059669;
+  --success-soft:#ecfdf5;
+  --warning:#d97706;
+  --warning-soft:#fffbeb;
+  --danger:#dc2626;
+  --danger-soft:#fef2f2;
+  --text:#111827;
+  --muted:#6b7280;
+  --nav-bg:#0f172a;
+  --nav-text:#94a3b8;
+  --nav-active:#ffffff;
+  --radius:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04);
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+}
 
 /* Sidebar */
-.sidebar{width:240px;min-height:100vh;background:var(--nav-bg);padding:24px 0;position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:100}
-.sidebar-brand{padding:0 24px 24px;border-bottom:1px solid #1e293b}
-.sidebar-brand .logo{font-family:'Playfair Display',serif;font-size:22px;color:#fff;font-weight:700}
-.sidebar-brand .tagline{font-size:11px;color:#475569;margin-top:2px;letter-spacing:.5px;text-transform:uppercase}
-.sidebar-role{padding:12px 24px;margin:16px 12px 0;background:#1e293b;border-radius:8px}
-.sidebar-role .role-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#64748b}
-.sidebar-role .role-name{font-size:13px;color:#f1f5f9;font-weight:500;margin-top:2px}
-.sidebar nav{margin-top:20px;flex:1}
-.sidebar nav a{display:flex;align-items:center;gap:10px;padding:10px 24px;color:var(--nav-text);text-decoration:none;font-size:14px;font-weight:400;transition:all .15s;border-left:3px solid transparent}
-.sidebar nav a:hover{color:var(--nav-active);background:#1e293b;border-left-color:#334155}
-.sidebar nav a.active{color:var(--nav-active);background:#1e2d47;border-left-color:var(--primary)}
-.sidebar nav a svg{width:17px;height:17px;flex-shrink:0}
-.sidebar-section{padding:6px 24px;margin-top:8px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#334155}
-.sidebar-footer{padding:16px 24px;border-top:1px solid #1e293b;margin-top:auto}
-.sidebar-footer a{display:flex;align-items:center;gap:8px;color:#64748b;text-decoration:none;font-size:13px}
-.sidebar-footer a:hover{color:#94a3b8}
+.sidebar{
+  width:240px;
+  min-height:100vh;
+  background:var(--nav-bg);
+  padding:24px 0;
+  position:fixed;
+  top:0;
+  left:0;
+  display:flex;
+  flex-direction:column;
+  z-index:100;
+}
 
-/* Main content */
-.main{margin-left:240px;flex:1;min-height:100vh;display:flex;flex-direction:column}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-.topbar-title{font-size:18px;font-weight:600;color:var(--text)}
-.topbar-user{display:flex;align-items:center;gap:12px}
-.avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px}
-.user-info .uname{font-size:13px;font-weight:500}
-.user-info .uemail{font-size:11px;color:var(--muted)}
-.content{padding:32px;flex:1}
+.sidebar-brand{
+  padding:0 24px 24px;
+  border-bottom:1px solid #1e293b;
+}
 
-/* Cards */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
-.card-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.card-title{font-size:16px;font-weight:600}
-.card-body{padding:24px}
+.sidebar-brand .logo{
+  font-family:'Playfair Display',serif;
+  font-size:22px;
+  color:#fff;
+  font-weight:700;
+}
 
-/* Stats grid */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
-.stat-card .stat-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
-.stat-card .stat-value{font-size:32px;font-weight:600;margin-top:6px}
-.stat-card .stat-sub{font-size:12px;color:var(--muted);margin-top:4px}
-.stat-card.blue .stat-value{color:var(--primary)}
-.stat-card.green .stat-value{color:var(--success)}
-.stat-card.orange .stat-value{color:var(--warning)}
-.stat-card.red .stat-value{color:var(--danger)}
+.sidebar-brand .tagline{
+  font-size:11px;
+  color:#475569;
+  margin-top:2px;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+}
 
-/* Tables */
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th{padding:10px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);border-bottom:2px solid var(--border);font-weight:500}
-td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:#f9fafb}
+.sidebar-role{
+  padding:12px 24px;
+  margin:16px 12px 0;
+  background:#1e293b;
+  border-radius:8px;
+}
 
-/* Badges */
-.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;text-transform:capitalize}
-.badge-pending{background:var(--warning-soft);color:var(--warning)}
-.badge-approved{background:var(--success-soft);color:var(--success)}
-.badge-rejected{background:var(--danger-soft);color:var(--danger)}
-.badge-completed{background:#f0f9ff;color:#0369a1}
-.badge-paid{background:var(--success-soft);color:var(--success)}
-.badge-unpaid{background:var(--warning-soft);color:var(--warning)}
+.sidebar-role .role-label{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  color:#64748b;
+}
 
-/* Buttons */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;border:none;cursor:pointer;text-decoration:none;transition:all .15s}
-.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:#1649c0}
-.btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#047857}
-.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#b91c1c}
-.btn-outline{background:transparent;color:var(--primary);border:1px solid var(--primary)}.btn-outline:hover{background:var(--primary-soft)}
-.btn-sm{padding:5px 10px;font-size:12px}
+.sidebar-role .role-name{
+  font-size:13px;
+  color:#f1f5f9;
+  font-weight:500;
+  margin-top:2px;
+}
 
-/* Forms */
-.form-group{margin-bottom:18px}
-.form-label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:#374151}
-.form-control{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;color:var(--text);background:var(--surface);transition:border-color .15s}
-.form-control:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
-select.form-control{cursor:pointer}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.sidebar nav{
+  margin-top:20px;
+  flex:1;
+}
+
+.sidebar nav a{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 24px;
+  color:var(--nav-text);
+  text-decoration:none;
+  font-size:14px;
+  transition:.15s;
+  border-left:3px solid transparent;
+}
+
+.sidebar nav a:hover{
+  color:var(--nav-active);
+  background:#1e293b;
+  border-left-color:#334155;
+}
+
+.sidebar nav a.active{
+  color:var(--nav-active);
+  background:#1e2d47;
+  border-left-color:var(--primary);
+}
+
+.sidebar nav a svg{
+  width:17px;
+  height:17px;
+  flex-shrink:0;
+}
+
+.sidebar-section{
+  padding:6px 24px;
+  margin-top:8px;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#334155;
+}
+
+.sidebar-footer{
+  padding:16px 24px;
+  border-top:1px solid #1e293b;
+}
+
+.sidebar-footer a{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#64748b;
+  text-decoration:none;
+  font-size:13px;
+}
+
+.sidebar-footer a:hover{
+  color:#94a3b8;
+}
+
+/* Main */
+.main{
+  margin-left:240px;
+  flex:1;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.topbar{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 32px;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.topbar-title{
+  font-size:18px;
+  font-weight:600;
+}
+
+.topbar-user{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.avatar{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:var(--primary);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:600;
+}
+
+.user-info .uname{
+  font-size:13px;
+  font-weight:500;
+}
+
+.user-info .uemail{
+  font-size:11px;
+  color:var(--muted);
+}
+
+.content{
+  padding:32px;
+  flex:1;
+}
 
 /* Alerts */
-.alert{padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:14px;display:flex;align-items:center;gap:10px}
-.alert-success{background:var(--success-soft);color:#065f46;border:1px solid #a7f3d0}
-.alert-error{background:var(--danger-soft);color:#991b1b;border:1px solid #fecaca}
-.alert-info{background:var(--primary-soft);color:#1e40af;border:1px solid #bfdbfe}
+.alert{
+  padding:12px 16px;
+  border-radius:8px;
+  margin-bottom:20px;
+  font-size:14px;
+}
 
-/* Page header */
-.page-header{margin-bottom:28px}
-.page-header h1{font-size:24px;font-weight:600}
-.page-header p{color:var(--muted);margin-top:4px;font-size:14px}
+.alert-success{
+  background:var(--success-soft);
+  color:#065f46;
+}
 
-/* Empty state */
-.empty{text-align:center;padding:48px 24px;color:var(--muted)}
-.empty svg{width:48px;height:48px;margin-bottom:12px;opacity:.4}
-.empty p{font-size:15px}
+.alert-error{
+  background:var(--danger-soft);
+  color:#991b1b;
+}
+
+.alert-info{
+  background:var(--primary-soft);
+  color:#1e40af;
+}
 
 /* Responsive */
 @media(max-width:768px){
-  .sidebar{transform:translateX(-100%)}
-  .main{margin-left:0}
-  .form-grid,.form-grid-3{grid-template-columns:1fr}
+  .sidebar{
+    transform:translateX(-100%);
+  }
+
+  .main{
+    margin-left:0;
+  }
 }
 </style>
+
 {% block extra_head %}{% endblock %}
 </head>
+
 <body>
 
 {% if session.user_id %}
+
 <aside class="sidebar">
+
   <div class="sidebar-brand">
     <div class="logo">🏥 MediCare</div>
     <div class="tagline">Hospital Management</div>
   </div>
+
   <div class="sidebar-role">
     <div class="role-label">Logged in as</div>
     <div class="role-name">{{ session.name }}</div>
   </div>
+
   <nav>
+
     {% if session.role == 'admin' %}
+
     <span class="sidebar-section">Admin Panel</span>
-    <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"/></svg>Dashboard
+
+    <a href="{{ url_for('admin.dashboard') }}"
+       class="{{ 'active' if request.endpoint == 'admin.dashboard' else '' }}">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M3 7h18M3 12h18M3 17h18"/>
+      </svg>
+      Dashboard
     </a>
-  <a href="{{ url_for('admin.doctors_page') }}"
-   class="{{ 'active' if request.endpoint and 'doctor' in request.endpoint else '' }}">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>Doctors
+
+    <a href="{{ url_for('admin.doctors_page') }}"
+       class="{{ 'active' if request.endpoint and 'doctor' in request.endpoint else '' }}">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+      </svg>
+      Doctors
     </a>
+
     <a href="{{ url_for('admin.patients_page') }}"
-   class="{{ 'active' if request.endpoint and 'patient' in request.endpoint else '' }}">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Patients
+       class="{{ 'active' if request.endpoint and 'patient' in request.endpoint else '' }}">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/>
+      </svg>
+      Patients
     </a>
+
     <a href="{{ url_for('admin.payments_page') }}"
-   class="{{ 'active' if request.endpoint and 'payment' in request.endpoint else '' }}">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Payments
+       class="{{ 'active' if request.endpoint and 'payment' in request.endpoint else '' }}">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      Payments
     </a>
 
     {% elif session.role == 'doctor' %}
+
     <span class="sidebar-section">Doctor Panel</span>
-    <a href="{{ url_for('doctor.dashboard') }}" class="{{ 'active' if request.endpoint == 'doctor.dashboard' }}">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Dashboard
+
+    <a href="{{ url_for('doctor.dashboard') }}"
+       class="{{ 'active' if request.endpoint == 'doctor.dashboard' else '' }}">
+      Dashboard
     </a>
-    <a href="{{ url_for('appointments.my_appointments') }}" class="{{ 'active' if 'appointments' in request.endpoint }}">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Appointments
+
+    <a href="{{ url_for('appointments.my_appointments') }}"
+       class="{{ 'active' if request.endpoint and 'appointments' in request.endpoint else '' }}">
+      Appointments
     </a>
 
     {% elif session.role == 'patient' %}
-    <span class="sidebar-section">Patient Portal</span>
-    <a href="{{ url_for('patient.dashboard') }}" class="{{ 'active' if request.endpoint == 'patient.dashboard' }}">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Dashboard
+
+    <span class="sidebar-section">Patient Panel</span>
+
+    <a href="{{ url_for('patient.dashboard') }}"
+       class="{{ 'active' if request.endpoint == 'patient.dashboard' else '' }}">
+      Dashboard
     </a>
-    <a href="{{ url_for('appointments.book') }}" class="{{ 'active' if request.endpoint == 'appointments.book' }}">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>Book Appointment
+
+    <a href="{{ url_for('appointments.book') }}"
+       class="{{ 'active' if request.endpoint == 'appointments.book' else '' }}">
+      Book Appointment
     </a>
-    <a href="{{ url_for('appointments.my_appointments') }}" class="{{ 'active' if request.endpoint == 'appointments.my_appointments' }}">
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>My Appointments
+
+    <a href="{{ url_for('appointments.my_appointments') }}"
+       class="{{ 'active' if request.endpoint == 'appointments.my_appointments' else '' }}">
+      My Appointments
     </a>
-    <a href="{{ url_for('patient.doctors_page') }}" class="{{ 'active' if request.endpoint == 'patient.doctors_page' }}">
-  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-    </svg>Find Doctors
-    </a>
-    <a href="{{ url_for('patient.medical_records_page') }}" class="{{ 'active' if request.endpoint == 'patient.medical_records_page' }}">
-  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-   </svg>Medical Records
-    </a>
-    <a href="{{ url_for('patient.payments_page') }}" class="{{ 'active' if request.endpoint == 'patient.payments_page' }}">
-  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-      d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-    </svg>Payments
-    </a>
+
     {% endif %}
+
   </nav>
+
   <div class="sidebar-footer">
     <a href="{{ url_for('auth.logout') }}">
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
       Logout
     </a>
   </div>
+
 </aside>
 
 <div class="main">
+
   <header class="topbar">
-    <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
+
+    <div class="topbar-title">
+      {% block page_title %}Dashboard{% endblock %}
+    </div>
+
     <div class="topbar-user">
-      <div class="avatar">{{ session.name[0].upper() }}</div>
+
+      <div class="avatar">
+        {{ session.name[0].upper() }}
+      </div>
+
       <div class="user-info">
         <div class="uname">{{ session.name }}</div>
         <div class="uemail">{{ session.role|capitalize }}</div>
       </div>
+
     </div>
+
   </header>
+
   <div class="content">
+
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for cat, msg in messages %}
         <div class="alert alert-{{ cat }}">
-          {% if cat == 'success' %}✓{% elif cat == 'error' %}✗{% else %}ℹ{% endif %} {{ msg }}
+          {{ msg }}
         </div>
       {% endfor %}
     {% endwith %}
+
     {% block content %}{% endblock %}
+
   </div>
+
 </div>
+
 {% else %}
+
 {% block auth_content %}{% endblock %}
+
 {% endif %}
 
 </body>
