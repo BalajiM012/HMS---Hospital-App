@@ -75,9 +75,10 @@ def dashboard():
     }
 
     return render_template(
-        'patient/dashboard.html',
-        appointments=appts,
-        stats=stats
+    'patient/dashboard.html',
+    appointments=appts,
+    stats=stats,
+    now=datetime.now()
     )
 
 
