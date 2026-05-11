@@ -25,8 +25,26 @@ def login_required(f):
     return decorated
 
 
+@appt_bp.route('/book', methods=['GET', 'POST'])
+@login_required
+def book():
+
+    if session.get('role') != 'patient':
+        flash('Only patients can book appointments.', 'error')
+        return redirect(url_for('auth.login'))
+
     # Get Doctors
     doctor_list = list(doctors.find())
+
+    # Attach User Info
+    for doctor in doctor_list:
+
+        user = users.find_one({
+            "_id": ObjectId(doctor['user_id'])
+        })
+
+        if user:
+            doctor['name'] = user.get('name')
 
     if request.method == 'POST':
 
@@ -49,6 +67,7 @@ def login_required(f):
         })
 
         if conflict:
+
             flash(
                 'That time slot is already taken. Please choose another.',
                 'error'
