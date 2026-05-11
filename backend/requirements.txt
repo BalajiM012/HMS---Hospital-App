@@ -1,9 +1,9 @@
 Flask==3.0.3
-Flask-MySQLdb==2.0.0
 Flask-Session==0.8.0
 Werkzeug==3.0.4
-PyMySQL==1.1.1
-cryptography==43.0.1
 python-dotenv==1.0.1
 gunicorn==23.0.0
-mysqlclient==2.2.4
+
+pymongo==4.7.3
+dnspython==2.6.1
+bcrypt==4.1.3
