@@ -1,34 +1,65 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from db import query
+from bson.objectid import ObjectId
+
+from mongo import users, patients, doctors
 
 auth_bp = Blueprint('auth', __name__)
 
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+
     if request.method == 'POST':
-        email    = request.form.get('email', '').strip()
+
+        email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
-        role     = request.form.get('role', '')
+        role = request.form.get('role', '')
 
-        user = query('SELECT * FROM users WHERE email=%s AND role=%s', (email, role), one=True)
+        # Find user in MongoDB
+        user = users.find_one({
+            "email": email,
+            "role": role
+        })
+
         if user and check_password_hash(user['password_hash'], password):
-            session['user_id'] = user['id']
-            session['name']    = user['name']
-            session['role']    = user['role']
-            session['email']   = user['email']
 
+            session['user_id'] = str(user['_id'])
+            session['name'] = user['name']
+            session['role'] = user['role']
+            session['email'] = user['email']
+
+            # Patient Session
             if role == 'patient':
-                p = query('SELECT id FROM patients WHERE user_id=%s', (user['id'],), one=True)
-                if p: session['patient_id'] = p['id']
-            elif role == 'doctor':
-                d = query('SELECT id FROM doctors WHERE user_id=%s', (user['id'],), one=True)
-                if d: session['doctor_id'] = d['id']
 
-            flash('Welcome back, ' + user['name'] + '!', 'success')
-            if role == 'admin':   return redirect(url_for('admin.dashboard'))
-            if role == 'doctor':  return redirect(url_for('doctor.dashboard'))
-            if role == 'patient': return redirect(url_for('patient.dashboard'))
+                patient = patients.find_one({
+                    "user_id": str(user['_id'])
+                })
+
+                if patient:
+                    session['patient_id'] = str(patient['_id'])
+
+            # Doctor Session
+            elif role == 'doctor':
+
+                doctor = doctors.find_one({
+                    "user_id": str(user['_id'])
+                })
+
+                if doctor:
+                    session['doctor_id'] = str(doctor['_id'])
+
+            flash(f"Welcome back, {user['name']}!", 'success')
+
+            if role == 'admin':
+                return redirect(url_for('admin.dashboard'))
+
+            elif role == 'doctor':
+                return redirect(url_for('doctor.dashboard'))
+
+            elif role == 'patient':
+                return redirect(url_for('patient.dashboard'))
+
         else:
             flash('Invalid credentials or role.', 'error')
 
@@ -37,32 +68,55 @@ def login():
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        name     = request.form.get('name', '').strip()
-        email    = request.form.get('email', '').strip()
-        password = request.form.get('password', '')
-        phone    = request.form.get('phone', '').strip()
-        dob      = request.form.get('dob', '')
-        gender   = request.form.get('gender', '')
-        blood    = request.form.get('blood_group', '')
-        address  = request.form.get('address', '')
-        emergency= request.form.get('emergency_contact', '')
 
-        existing = query('SELECT id FROM users WHERE email=%s', (email,), one=True)
+    if request.method == 'POST':
+
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
+        phone = request.form.get('phone', '').strip()
+
+        dob = request.form.get('dob', '')
+        gender = request.form.get('gender', '')
+        blood = request.form.get('blood_group', '')
+        address = request.form.get('address', '')
+        emergency = request.form.get('emergency_contact', '')
+
+        # Check existing email
+        existing = users.find_one({
+            "email": email
+        })
+
         if existing:
             flash('Email already registered.', 'error')
             return render_template('auth/register.html')
 
+        # Hash Password
         hashed = generate_password_hash(password)
-        uid = query(
-            'INSERT INTO users (name, email, password_hash, role, phone) VALUES (%s,%s,%s,%s,%s)',
-            (name, email, hashed, 'patient', phone), commit=True
-        )
-        query(
-            'INSERT INTO patients (user_id, dob, gender, blood_group, address, emergency_contact) VALUES (%s,%s,%s,%s,%s,%s)',
-            (uid, dob or None, gender, blood, address, emergency), commit=True
-        )
+
+        # Insert User
+        user_result = users.insert_one({
+            "name": name,
+            "email": email,
+            "password_hash": hashed,
+            "role": "patient",
+            "phone": phone
+        })
+
+        user_id = str(user_result.inserted_id)
+
+        # Insert Patient
+        patients.insert_one({
+            "user_id": user_id,
+            "dob": dob,
+            "gender": gender,
+            "blood_group": blood,
+            "address": address,
+            "emergency_contact": emergency
+        })
+
         flash('Registration successful! Please login.', 'success')
+
         return redirect(url_for('auth.login'))
 
     return render_template('auth/register.html')
@@ -70,6 +124,9 @@ def register():
 
 @auth_bp.route('/logout')
 def logout():
+
     session.clear()
+
     flash('You have been logged out.', 'info')
+
     return redirect(url_for('auth.login'))
