@@ -33,10 +33,8 @@ def book():
         flash('Only patients can book appointments.', 'error')
         return redirect(url_for('auth.login'))
 
-    # Get Available Doctors
-    doctor_list = list(doctors.find({
-        "available": True
-    }))
+    # Get Doctors
+doctor_list = list(doctors.find())
 
     # Attach User Info
     for doctor in doctor_list:
