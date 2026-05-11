@@ -1,72 +1,159 @@
 {% extends "base.html" %}
+
 {% block title %}Book Appointment - MediCare{% endblock %}
 {% block page_title %}Book Appointment{% endblock %}
+
 {% block content %}
+
 <div class="page-header">
   <h1>Book an Appointment</h1>
   <p>Choose a doctor, date, and time. We'll notify you upon confirmation.</p>
 </div>
+
 <div class="card" style="max-width:600px">
+
   <div class="card-body">
+
     <form method="POST">
+
       <div class="form-group">
         <label class="form-label">Select Doctor</label>
-        <select name="doctor_id" class="form-control" required id="doctor-select">
+
+        <select name="doctor_id"
+                class="form-control"
+                required
+                id="doctor-select">
+
           <option value="">-- Choose a Doctor --</option>
+
           {% for doc in doctors %}
-          <option value="{{ doc.id }}" data-fee="{{ doc.consultation_fee }}" {{ 'selected' if request.args.get('doctor')|int == doc.id }}>
-            Dr. {{ doc.name }} — {{ doc.specialty }} (₹{{ doc.consultation_fee }})
+
+          <option
+            value="{{ doc._id }}"
+            data-fee="{{ doc.consultation_fee }}">
+
+            Dr. {{ doc.name }}
+            — {{ doc.specialty }}
+            (₹{{ doc.consultation_fee }})
+
           </option>
+
           {% endfor %}
+
         </select>
       </div>
-      <div id="fee-display" style="display:none;background:#eff4ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;margin-bottom:16px;font-size:14px;color:#1e40af">
-        💰 Consultation fee: <strong id="fee-amount"></strong>
+
+      <div id="fee-display"
+           style="display:none;
+                  background:#eff4ff;
+                  border:1px solid #bfdbfe;
+                  border-radius:8px;
+                  padding:12px;
+                  margin-bottom:16px;
+                  font-size:14px;
+                  color:#1e40af">
+
+        💰 Consultation fee:
+        <strong id="fee-amount"></strong>
+
       </div>
+
       <div class="form-grid">
+
         <div class="form-group">
           <label class="form-label">Preferred Date</label>
-          <input type="date" name="appointment_date" class="form-control" required min="{{ today }}">
+
+          <input type="date"
+                 name="appointment_date"
+                 class="form-control"
+                 required>
         </div>
+
         <div class="form-group">
           <label class="form-label">Preferred Time</label>
-          <select name="appointment_time" class="form-control" required>
+
+          <select name="appointment_time"
+                  class="form-control"
+                  required>
+
             <option value="">Select time</option>
+
             {% for h in range(9, 18) %}
               {% for m in ['00', '30'] %}
+
                 {% set t = '%02d:%s'|format(h, m) %}
-                <option value="{{ t }}:00">{{ t }}</option>
+
+                <option value="{{ t }}:00">
+                  {{ t }}
+                </option>
+
               {% endfor %}
             {% endfor %}
+
           </select>
         </div>
+
       </div>
+
       <div class="form-group">
+
         <label class="form-label">Reason for Visit</label>
-        <textarea name="reason" class="form-control" rows="3" placeholder="Briefly describe your symptoms or reason..."></textarea>
+
+        <textarea name="reason"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Briefly describe your symptoms or reason..."></textarea>
+
       </div>
+
       <div style="display:flex;gap:12px">
-        <button type="submit" class="btn btn-primary">Confirm Booking</button>
-        <a href="{{ url_for('patient.dashboard') }}" class="btn btn-outline">Cancel</a>
+
+        <button type="submit" class="btn btn-primary">
+          Confirm Booking
+        </button>
+
+        <a href="{{ url_for('patient.dashboard') }}"
+           class="btn btn-outline">
+
+          Cancel
+
+        </a>
+
       </div>
+
     </form>
+
   </div>
+
 </div>
+
 <script>
+
 const today = new Date().toISOString().split('T')[0];
+
 document.querySelector('[name=appointment_date]').min = today;
 
-document.getElementById('doctor-select').addEventListener('change', function() {
-  const opt = this.options[this.selectedIndex];
-  const fee = opt.dataset.fee;
-  if (fee && this.value) {
-    document.getElementById('fee-display').style.display = 'block';
-    document.getElementById('fee-amount').textContent = '₹' + fee;
-  } else {
-    document.getElementById('fee-display').style.display = 'none';
-  }
+document.getElementById('doctor-select')
+.addEventListener('change', function () {
+
+    const opt = this.options[this.selectedIndex];
+    const fee = opt.dataset.fee;
+
+    if (fee && this.value) {
+
+        document.getElementById('fee-display').style.display = 'block';
+
+        document.getElementById('fee-amount').textContent = '₹' + fee;
+
+    } else {
+
+        document.getElementById('fee-display').style.display = 'none';
+    }
 });
-// Trigger on load if pre-selected
-document.getElementById('doctor-select').dispatchEvent(new Event('change'));
+
+document.getElementById('doctor-select')
+.dispatchEvent(new Event('change'));
+
 </script>
+
 {% endblock %}
