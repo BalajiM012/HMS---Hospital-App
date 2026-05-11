@@ -22,8 +22,11 @@ def login():
             "role": role
         })
 
-        if user and check_password_hash(user['password_hash'], password):
+        if user:
 
+    stored_hash = user.get('password_hash')
+
+    if stored_hash and check_password_hash(stored_hash, password):
             session['user_id'] = str(user['_id'])
             session['name'] = user['name']
             session['role'] = user['role']
