@@ -11,14 +11,15 @@ def init_db(app):
 def get_db():
     if 'db' not in g:
         g.db = pymysql.connect(
-            host=_app.config['MYSQL_HOST'],
-            port=_app.config['MYSQL_PORT'],
-            user=_app.config['MYSQL_USER'],
-            password=_app.config['MYSQL_PASSWORD'],
-            database=_app.config['MYSQL_DB'],
-            cursorclass=pymysql.cursors.DictCursor,
-            autocommit=False
-        )
+    host=_app.config['MYSQL_HOST'],
+    port=_app.config['MYSQL_PORT'],
+    user=_app.config['MYSQL_USER'],
+    password=_app.config['MYSQL_PASSWORD'],
+    database=_app.config['MYSQL_DB'],
+    cursorclass=pymysql.cursors.DictCursor,
+    autocommit=False,
+    ssl={"ssl": {}}
+)
     return g.db
 
 def close_db(e=None):
