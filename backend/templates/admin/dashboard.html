@@ -11,12 +11,12 @@
   <div class="stat-card blue">
     <div class="stat-label">Total Doctors</div>
     <div class="stat-value">{{ stats.doctors }}</div>
-    <div class="stat-sub"><a href="{{ url_for('admin.doctors') }}" style="color:var(--primary)">Manage →</a></div>
+    <div class="stat-sub"><a href="{{ url_for('admin.doctors_page') }}" style="color:var(--primary)">Manage →</a></div>
   </div>
   <div class="stat-card green">
     <div class="stat-label">Total Patients</div>
     <div class="stat-value">{{ stats.patients }}</div>
-    <div class="stat-sub"><a href="{{ url_for('admin.patients') }}" style="color:var(--success)">View →</a></div>
+    <div class="stat-sub"><a href="{{ url_for('admin.patients_page') }}" style="color:var(--success)">View →</a></div>
   </div>
   <div class="stat-card orange">
     <div class="stat-label">Pending Appointments</div>
@@ -29,13 +29,13 @@
   <div class="stat-card blue">
     <div class="stat-label">Revenue Collected</div>
     <div class="stat-value" style="font-size:22px">₹{{ "%.0f"|format(stats.revenue) }}</div>
-    <div class="stat-sub"><a href="{{ url_for('admin.payments') }}" style="color:var(--primary)">Payments →</a></div>
+    <div class="stat-sub"><a href="{{ url_for('admin.payments_page') }}" style="color:var(--primary)">Payments →</a></div>
   </div>
 </div>
 
 <div style="display:flex;gap:12px;margin-bottom:24px">
   <a href="{{ url_for('admin.add_doctor') }}" class="btn btn-primary">+ Add Doctor</a>
-  <a href="{{ url_for('admin.patients') }}" class="btn btn-outline">View Patients</a>
+  <a href="{{ url_for('admin.patients_page') }}" class="btn btn-outline">View Patients</a>
 </div>
 
 <div class="card">
